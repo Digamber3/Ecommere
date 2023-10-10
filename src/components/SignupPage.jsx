@@ -1,15 +1,67 @@
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useFormik } from "formik";
+import React, { useState } from "react";
 import * as Yup from "yup";
+import { auth, fireDB } from "../firebase";
+import { Timestamp, addDoc, collection } from "firebase/firestore";
+import { toast } from "react-toastify";
+import Loader from "../components/Loader";
 
 const SignupPage = () => {
+  const [loading, setLoading] = useState(false); // Add loading state
+
   const initialValues = {
     firstName: "",
     email: "",
     mobile: "",
     password: "",
   };
-  const onSubmit = (values) => {
-    console.log(values);
+
+  // const onSubmit = (values) => {
+  //   console.log(values);
+  // };
+
+  const onSubmit = async (values, formikBag) => {
+    try {
+      setLoading(true); // Set loading to true while performing the signup
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+
+      // Access the user information from the user credential
+      const user = userCredential.user;
+
+      console.log("User created:", user);
+
+      // Extract relevant user data
+      const userData = {
+        firstName: values.firstName,
+        uid: user.uid,
+        email: user.email,
+        time: Timestamp.now(),
+      };
+
+      const userRef = collection(fireDB, "Allusers");
+      await addDoc(userRef, userData);
+
+      // Display a success toast message
+      toast.success("Signup successful!", {
+        position: "top-right",
+        autoClose: 5000, //
+      });
+
+      formikBag.resetForm();
+      // Clear the form fields after a successful signup
+
+      setLoading(false); // Set loading back to false after the signup is complete
+    } catch (error) {
+      console.error("Error:", error);
+
+      setLoading(false); // Set loading back to false if there is an error
+    }
   };
 
   const validationSchema = Yup.object({
@@ -32,6 +84,7 @@ const SignupPage = () => {
 
   return (
     <div className="container">
+      {loading && <Loader />} {/* Display the loader while loading */}
       <div className="row">
         <div className="col-md-3"></div>
         <div className="col-md-6">

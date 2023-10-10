@@ -9,7 +9,7 @@ const Navbar = () => {
     <div>
       <nav className="navbar navbar-expand-lg navbar-light bg-white py-3 shadow-sm">
         <div className="container">
-          <Link to="/" className="navbar-brand fw-bold fs-4">
+          <Link to="/home" className="navbar-brand fw-bold fs-4">
             SHOPLANE
           </Link>
           <button
